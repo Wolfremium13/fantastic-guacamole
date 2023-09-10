@@ -32,7 +32,7 @@ export class FileSystemLocalRepository {
 			});
 		});
 	}
-	async writeFile(path: string, content: string): Promise<void> {
+	async writeFile(path: string, content: string | Buffer): Promise<void> {
 		return new Promise((resolve, reject) => {
 			this.fsModule.writeFile(path, content, (err: any) => {
 				if (err) {
