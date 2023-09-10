@@ -10,7 +10,7 @@ const SELECTED_BOOK_NAME = 'book-name';
 
 const filesystem = new FileSystemLocalRepository(fs);
 const bookLocalRepository = new BookLocalRepository(filesystem);
-const pdfLocalRepository = new PDFLocalRepository(filesystem);
+const pdfLocalRepository = new PDFLocalRepository();
 
 const generateBook = async (bookName: string) => {
 	const bookDir = path.join(BOOKS_DIR, bookName);
