@@ -1,0 +1,63 @@
+{
+  "name": "guacamole",
+  "version": "1.0.0",
+  "description": "Poryect to convert markdown files into PDF.",
+  "main": "dist/index.js",
+  "scripts": {
+    "execute": "npm run compile:build && node dist/index.js",
+    "build": "npm run compile:build",
+    "analize": "npm run lint:fix && npm run compile",
+    "compile": "tsc --noEmit",
+    "compile:watch": "npm run compile -- --watch",
+    "compile:build": "tsc -b",
+    "lint": "eslint ./src --ext .ts,.tsx",
+    "lint:watch": "esw --color --watch",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --config .prettierrc '**/*.+(ts|tsx)'",
+    "format:fix": "npm run format -- --write",
+    "test": "vitest run --reporter=verbose",
+    "test:watch": "npm run test -- --watchAll",
+    "test:coverage": "npm run test -- --coverage",
+    "check-updates": "ncu -u"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.5.1"
+  },
+  "packageManager": "npm@9.5.1",
+  "author": "lean-mind",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "@types/marked": "^5.0.1",
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "@vitest/coverage-v8": "^0.34.2",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-watch": "^8.0.0",
+    "gray-matter": "^4.0.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.0",
+    "marked": "^7.0.3",
+    "npm-check-updates": "^16.9.0",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.3",
+    "vitest": "^0.34.2"  },
+
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
+    }
+  },
+  "lint-staged": {
+    "*.+(ts|tsx)": [
+      "npm run lint:fix",
+      "npm run compile",
+      "git add . "
+    ]
+  }
+}

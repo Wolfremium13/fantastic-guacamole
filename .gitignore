@@ -1,0 +1,22 @@
+# IDE
+.idea
+.vscode
+
+# MAC
+.DS_Store
+
+# Hugo
+resources/
+docs/
+.hugo_build.lock
+public/
+bin
+
+# Node
+/node_modules
+/build
+/dist
+/coverage
+
+# Temporary
+feed.xml
