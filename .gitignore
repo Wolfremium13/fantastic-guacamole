@@ -19,4 +19,4 @@ bin
 /coverage
 
 # Temporary
-feed.xml
+*.pdf
