@@ -16,8 +16,8 @@ const generateBook = async (bookName: string) => {
 	const bookDir = path.join(BOOKS_DIR, bookName);
 	const book = await bookLocalRepository.getBook(bookDir);
 	const markdown = new Markdown();
-	const toc = markdown.getTableOfContents(book.markdown);
-	const bookContent = toc + '\n' + book.markdown;
+    const bookContent = markdown.prepareContent(book.markdown);
+    fs.writeFileSync('test.md', bookContent);
 	const pdfPath = 'book.pdf';
 	pdfLocalRepository.generatePDF(bookContent, pdfPath);
 };
