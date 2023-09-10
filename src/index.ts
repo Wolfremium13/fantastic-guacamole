@@ -1,37 +1,31 @@
-import { mdToPdf } from 'md-to-pdf';
 import fs from 'fs';
-import { PageUtils } from './core/markdown/domain/page.utils';
+import { Markdown } from './core/book-generator/domain/markdown';
+import path from 'path';
+import { FileSystemLocalRepository } from './core/file-system/infrastructure/filesystem.local.repository';
+import { BookLocalRepository } from './core/book-generator/infrastructure/book.local.repository';
+import { PDFLocalRepository } from './core/book-generator/infrastructure/pdf.local.repository';
 
-(async () => {
-    let mdContent = fs.readFileSync('README.md', 'utf8');
-    let toc = new PageUtils().getTableOfContents(mdContent);
-    toc += `\n${PageUtils.break}\n`;
-    mdContent = toc + "\n" + mdContent;
+const BOOKS_DIR = path.join(process.cwd(), 'books');
+const SELECTED_BOOK_NAME = 'book-name';
 
-    // DEBUG only
-    fs.writeFileSync('temp.md', mdContent, 'utf8');
-    //fs.unlinkSync('temp.md');
+const filesystem = new FileSystemLocalRepository(fs);
+const bookLocalRepository = new BookLocalRepository(filesystem);
+const pdfLocalRepository = new PDFLocalRepository(filesystem);
 
-    await mdToPdf(
-        { content: mdContent },
-        {
-            dest: 'test.pdf',
-            stylesheet_encoding: 'utf-8',
-            stylesheet: ['https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css'],
-            body_class: ['markdown-body'],
-            highlight_style: 'github',
-            pdf_options: {
-                format: 'A4',
-                printBackground: true,
-                margin: {
-                    top: '2cm',
-                    bottom: '2cm',
-                    left: '2cm',
-                    right: '2cm',
-                },
-            },
-            md_file_encoding: 'utf-8',
-        }
-    ).catch(console.error);
+const generateBook = async (bookName: string) => {
+	const bookDir = path.join(BOOKS_DIR, bookName);
+	const book = await bookLocalRepository.getBook(bookDir);
+	const markdown = new Markdown();
+	const toc = markdown.getTableOfContents(book.markdown);
+	const bookContent = toc + '\n' + book.markdown;
+	const pdfPath = 'book.pdf';
+	pdfLocalRepository.generatePDF(bookContent, pdfPath);
+};
 
-})();
+generateBook(SELECTED_BOOK_NAME)
+	.then(() => {
+		console.log(`> Book generated ${SELECTED_BOOK_NAME}`);
+	})
+	.catch((err) => {
+		console.error('❌ Cannot generate the book', err);
+	});

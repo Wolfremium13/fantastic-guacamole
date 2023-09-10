@@ -1,4 +1,4 @@
-export class PageUtils {
+export class Markdown {
 	static get break(): string {
 		return '<div style="page-break-after: always;"></div>';
 	}
