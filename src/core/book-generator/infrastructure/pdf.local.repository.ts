@@ -25,6 +25,7 @@ export class PDFLocalRepository {
 					},
 				},
 				md_file_encoding: 'utf-8',
+				as_html: false,
 			}
 		)
 	}

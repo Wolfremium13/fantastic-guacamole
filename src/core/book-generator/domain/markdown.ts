@@ -43,20 +43,49 @@ export class Markdown {
 
 	private getTableOfContents(mdContent: string): string {
 		const indexTitle = 'Índice general';
-		const matches = [...mdContent.matchAll(this.titleRegex())];
+		const sections = this.splitIntoSections(mdContent);
 		const seenTitles = new Set<string>();
-		const tocEntries = matches
-			.filter((match) => {
+		const tocEntries = [];
+
+		for (let section of sections) {
+			if (section.isCode) continue; // ignore code blocks
+
+			const matches = [...section.content.matchAll(this.titleRegex())];
+			for (let match of matches) {
 				const title = match[2];
-				if (seenTitles.has(title)) {
-					return false;
-				} else {
+				if (!seenTitles.has(title)) {
 					seenTitles.add(title);
-					return true;
+					tocEntries.push(this.parseIndexTitle(match[1].length, title));
 				}
-			})
-			.map((match) => this.parseIndexTitle(match[1].length, match[2]));
+			}
+		}
+
 		return this.parseIndexHeader(indexTitle) + tocEntries.join('\n');
+	}
+
+	private splitIntoSections(content: string): Array<{ isCode: boolean; content: string }> {
+		const codeRegex = this.codeBlockRegex();
+		const sections = [];
+		let lastIndex = 0;
+		let match;
+		while ((match = codeRegex.exec(content)) !== null) {
+			sections.push({
+				isCode: false,
+				content: content.slice(lastIndex, match.index),
+			});
+			sections.push({
+				isCode: true,
+				content: match[1],
+			});
+			lastIndex = match.index + match[0].length;
+		}
+		if (lastIndex < content.length) {
+			sections.push({
+				isCode: false,
+				content: content.slice(lastIndex),
+			});
+		}
+		return sections;
 	}
 
 	private parseIndexHeader(indexTitle: string): string {
@@ -64,7 +93,12 @@ export class Markdown {
 	}
 
 	private parseIndexTitle(level: number, title: string): string {
-		return `${'  '.repeat(level - 1)}- [${title}](#${title.toLowerCase().replace(/\s+/g, '-')})\n`;
+		const prefix = '  '.repeat(level - 1);
+		// remove special characters
+		const anchorLink = title.toLowerCase()
+		.replace(/\s+/g, '-')
+		.replace(/_/g, '')
+		return `${prefix}- [${title}](#${anchorLink})`;
 	}
 
 	private titleRegex(): RegExp {
